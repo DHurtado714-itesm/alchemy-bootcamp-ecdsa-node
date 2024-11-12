@@ -37,7 +37,7 @@ const Transfer: React.FC<TransferProps> = ({
         recoveryBit,
       });
       setBalance(response.data.balance);
-    } catch (ex: any) {
+    } catch (ex) {
       alert(ex.response.data.message);
     }
   };
