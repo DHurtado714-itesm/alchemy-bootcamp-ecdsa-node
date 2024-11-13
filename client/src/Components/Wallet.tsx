@@ -1,26 +1,46 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import server from "../service";
+import { secp256k1 } from "ethereum-cryptography/secp256k1";
+import { toHex } from "ethereum-cryptography/utils";
 
 interface WalletProps {
   address: string;
   setAddress: (address: string) => void;
+  privateKey: string;
+  setPrivateKey: (privateKey: string) => void;
   balance: number;
   setBalance: (balance: number) => void;
 }
 
-function Wallet({ address, setAddress, balance, setBalance }: WalletProps) {
+function Wallet({
+  address,
+  setAddress,
+  privateKey,
+  setPrivateKey,
+  balance,
+  setBalance,
+}: WalletProps) {
   async function onChange(evt: ChangeEvent<HTMLInputElement>) {
-    const address = evt.target.value;
-    setAddress(address);
-    if (address) {
-      const {
-        data: { balance },
-      } = await server.get(`balance/${address}`);
-      setBalance(balance);
-    } else {
-      setBalance(0);
-    }
+    const privateKey = evt.target.value;
+    setPrivateKey(privateKey);
+
+    const publicKey = secp256k1.getPublicKey(privateKey);
+    setAddress(toHex(publicKey));
   }
+
+  useEffect(() => {
+    async function fetchBalance() {
+      if (address) {
+        const {
+          data: { balance },
+        } = await server.get(`balance/${address}`);
+        setBalance(balance);
+      } else {
+        setBalance(0);
+      }
+    }
+    fetchBalance();
+  }, [address, setBalance]);
 
   return (
     <div className="container wallet">
@@ -29,8 +49,8 @@ function Wallet({ address, setAddress, balance, setBalance }: WalletProps) {
       <label>
         Wallet Address
         <input
-          placeholder="Type an address, for example: 0x1"
-          value={address}
+          placeholder="Type your private key:"
+          value={privateKey}
           onChange={onChange}
         ></input>
       </label>
