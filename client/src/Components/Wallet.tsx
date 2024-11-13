@@ -1,7 +1,4 @@
-import { secp256k1 } from "ethereum-cryptography/secp256k1";
-import { keccak256 } from "ethereum-cryptography/keccak";
-import { toHex, hexToBytes } from "ethereum-cryptography/utils";
-import { useState, ChangeEvent } from "react";
+import { ChangeEvent } from "react";
 import server from "../service";
 
 interface WalletProps {
@@ -9,52 +6,38 @@ interface WalletProps {
   setAddress: (address: string) => void;
   balance: number;
   setBalance: (balance: number) => void;
-  privateKey: string;
-  setPrivateKey: (key: string) => void;
 }
 
-const Wallet: React.FC<WalletProps> = ({
-  address,
-  setAddress,
-  balance,
-  setBalance,
-  privateKey,
-  setPrivateKey,
-}) => {
-  const [localPrivateKey, setLocalPrivateKey] = useState(privateKey);
-
-  const onChange = async (evt: ChangeEvent<HTMLInputElement>) => {
-    const key = evt.target.value;
-    setLocalPrivateKey(key);
-    setPrivateKey(key);
-
-    try {
-      // Convert private key to Uint8Array before passing to getPublicKey
-      const publicKey = secp256k1.getPublicKey(hexToBytes(key));
-      const derivedAddress = `0x${toHex(keccak256(publicKey).slice(-20))}`;
-      setAddress(derivedAddress);
-
-      if (derivedAddress) {
-        const response = await server.get(`balance/${derivedAddress}`);
-        setBalance(response.data.balance);
-      }
-    } catch (error) {
-      console.error("Invalid private key", error);
-      setAddress("");
+function Wallet({ address, setAddress, balance, setBalance }: WalletProps) {
+  async function onChange(evt: ChangeEvent<HTMLInputElement>) {
+    const address = evt.target.value;
+    setAddress(address);
+    if (address) {
+      const {
+        data: { balance },
+      } = await server.get(`balance/${address}`);
+      setBalance(balance);
+    } else {
       setBalance(0);
     }
-  };
+  }
 
   return (
-    <div>
+    <div className="container wallet">
+      <h1>Your Wallet</h1>
+
       <label>
-        Private Key
-        <input type="text" value={localPrivateKey} onChange={onChange} />
+        Wallet Address
+        <input
+          placeholder="Type an address, for example: 0x1"
+          value={address}
+          onChange={onChange}
+        ></input>
       </label>
-      <div>Address: {address}</div>
-      <div>Balance: {balance}</div>
+
+      <div className="balance">Balance: {balance}</div>
     </div>
   );
-};
+}
 
 export default Wallet;

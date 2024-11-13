@@ -1,68 +1,64 @@
 import { useState } from "react";
-import { secp256k1 } from "ethereum-cryptography/secp256k1";
-import { keccak256 } from "ethereum-cryptography/keccak";
-import { utf8ToBytes } from "ethereum-cryptography/utils";
 import server from "../service";
 
 interface TransferProps {
   address: string;
-  privateKey: string;
   setBalance: (balance: number) => void;
 }
 
-const Transfer: React.FC<TransferProps> = ({
-  address,
-  privateKey,
-  setBalance,
-}) => {
+function Transfer({ address, setBalance }: TransferProps) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
-  const transfer = async (evt: React.FormEvent) => {
+  const setValue =
+    (setter: (value: string) => void) =>
+    (evt: React.ChangeEvent<HTMLInputElement>) =>
+      setter(evt.target.value);
+
+  async function transfer(evt: React.FormEvent) {
     evt.preventDefault();
 
-    const message = `${address}${recipient}${sendAmount}`;
-    const messageHash = keccak256(utf8ToBytes(message));
-
-    const [signature, recoveryBit] = secp256k1.sign(messageHash, privateKey, {
-      recovered: true,
-    });
-
     try {
-      const response = await server.post("send", {
+      const {
+        data: { balance },
+      } = await server.post(`send`, {
         sender: address,
         amount: parseInt(sendAmount),
         recipient,
-        signature: Array.from(signature),
-        recoveryBit,
       });
-      setBalance(response.data.balance);
-    } catch (ex) {
-      alert(ex.response.data.message);
+      setBalance(balance);
+    } catch (ex: unknown) {
+      if (ex instanceof Error) {
+        alert(ex);
+      }
     }
-  };
+  }
 
   return (
-    <form onSubmit={transfer}>
+    <form className="container transfer" onSubmit={transfer}>
+      <h1>Send Transaction</h1>
+
       <label>
         Send Amount
         <input
-          type="number"
+          placeholder="1, 2, 3..."
           value={sendAmount}
-          onChange={(e) => setSendAmount(e.target.value)}
-        />
+          onChange={setValue(setSendAmount)}
+        ></input>
       </label>
+
       <label>
         Recipient
         <input
-          type="text"
+          placeholder="Type an address, for example: 0x2"
           value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-        />
+          onChange={setValue(setRecipient)}
+        ></input>
       </label>
-      <button type="submit">Transfer</button>
+
+      <input type="submit" className="button" value="Transfer" />
     </form>
   );
-};
+}
 
 export default Transfer;
