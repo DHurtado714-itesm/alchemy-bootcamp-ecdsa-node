@@ -1,31 +1,33 @@
-## ECDSA Node
+# 🔐 Secure Wallet Transfer App
 
-This project is an example of using a client and server to facilitate transfers between different addresses. Since there is just a single server on the back-end handling transfers, this is clearly very centralized. We won't worry about distributed consensus for this project.
+Hey there! 👋 Welcome to my awesome project that demonstrates secure cryptocurrency transfers using ECDSA signatures. I built this to explore how we can make digital transactions more secure, even with a centralized server setup.
 
-However, something that we would like to incoporate is Public Key Cryptography. By using Elliptic Curve Digital Signatures we can make it so the server only allows transfers that have been signed for by the person who owns the associated address.
+The coolest part? 🌟 I implemented Public Key Cryptography using Elliptic Curve Digital Signatures to ensure that only the rightful owner of an address can make transfers. Pretty neat, right?
 
-### Video instructions
-For an overview of this project as well as getting started instructions, check out the following video:
+## 🚀 Getting Started
 
+### 💻 Client Setup
+
+I built the frontend using [React](https://reactjs.org/) and [Vite](https://vitejs.dev/). Here's how to run it:
+
+1. 📂 Navigate to the `/client` folder in your terminal
+2. 📦 Install dependencies with `pnpm install`
+3. 🏃‍♂️ Start the app with `pnpm run dev`
+4. 🌐 Visit http://127.0.0.1:5173/ in your browser
+
+### 🖥️ Server Setup
+
+The backend is powered by [Express](https://expressjs.com/). Follow these steps:
+
+1. 📂 Open terminal in `/server` folder
+2. 📦 Run `pnpm install` for dependencies
+3. 🚀 Start server with `node index`
+
+✨ The app will automatically connect to port 3042!
+
+💡 Pro tip: Use [nodemon](https://www.npmjs.com/package/nodemon) instead of `node` for auto-restart on code changes!
+
+## 🎓 Want to Learn More?
+
+Check out this detailed walkthrough video:
 https://www.loom.com/share/0d3c74890b8e44a5918c4cacb3f646c4
- 
-### Client
-
-The client folder contains a [react app](https://reactjs.org/) using [vite](https://vitejs.dev/). To get started, follow these steps:
-
-1. Open up a terminal in the `/client` folder
-2. Run `npm install` to install all the depedencies
-3. Run `npm run dev` to start the application 
-4. Now you should be able to visit the app at http://127.0.0.1:5173/
-
-### Server
-
-The server folder contains a node.js server using [express](https://expressjs.com/). To run the server, follow these steps:
-
-1. Open a terminal within the `/server` folder 
-2. Run `npm install` to install all the depedencies 
-3. Run `node index` to start the server 
-
-The application should connect to the default server port (3042) automatically! 
-
-_Hint_ - Use [nodemon](https://www.npmjs.com/package/nodemon) instead of `node` to automatically restart the server on any changes.
