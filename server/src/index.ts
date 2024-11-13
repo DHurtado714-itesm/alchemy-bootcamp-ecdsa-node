@@ -1,4 +1,6 @@
 import { Request, Response } from "express";
+import { secp256k1 } from "ethereum-cryptography/secp256k1";
+import { toHex, utf8ToBytes } from "ethereum-cryptography/utils";
 
 const express = require("express");
 const app = express();
@@ -21,12 +23,17 @@ app.get("/balance/:address", (req: Request, res: Response) => {
 });
 
 app.post("/send", (req: Request, res: Response) => {
-  // TODO: get a signature from the client-side application
-  // TODO: verify the signature
-  // TODO: recover the public address from the signature
-
   try {
-    const { sender, recipient, amount } = req.body;
+    const { sender, recipient, amount, signature, privateKey } = req.body;
+
+    const publicKey = toHex(secp256k1.getPublicKey(privateKey));
+    const messageHash = utf8ToBytes(
+      JSON.stringify({ sender, recipient, amount })
+    );
+
+    if (!secp256k1.verify(signature, messageHash, publicKey)) {
+      res.status(400).send({ message: "Invalid signature" });
+    }
 
     setInitialBalance(sender);
     setInitialBalance(recipient);
