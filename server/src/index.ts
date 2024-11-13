@@ -9,9 +9,9 @@ app.use(cors());
 app.use(express.json());
 
 const balances: Record<string, number> = {
-  "0x1": 100,
-  "0x2": 50,
-  "0x3": 75,
+  "0304d3f1c68da1d2e5d2e0285c22d1d8c9334cfaeabd408dabff84179a97d4eb98": 100,
+  "02adb814ed744b2d067d63461dfdec4e6169e6ead80f9fdd9f5457b6ced9c4619e": 50,
+  "03b5e99bb20b02a88d8ead12a9e37feb9477c0e830475f5e4a69a2e9fa3a9439d3": 75,
 };
 
 app.get("/balance/:address", (req: Request, res: Response) => {
