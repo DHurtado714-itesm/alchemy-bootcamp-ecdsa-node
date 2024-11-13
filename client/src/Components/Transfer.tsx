@@ -1,12 +1,15 @@
 import { useState } from "react";
 import server from "../service";
+import { secp256k1 } from "ethereum-cryptography/secp256k1";
+import { utf8ToBytes } from "ethereum-cryptography/utils";
 
 interface TransferProps {
   address: string;
+  privateKey: string;
   setBalance: (balance: number) => void;
 }
 
-function Transfer({ address, setBalance }: TransferProps) {
+function Transfer({ address, privateKey, setBalance }: TransferProps) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
 
@@ -19,17 +22,35 @@ function Transfer({ address, setBalance }: TransferProps) {
     evt.preventDefault();
 
     try {
+      const messageHash = utf8ToBytes(
+        JSON.stringify({
+          sender: address,
+          amount: parseInt(sendAmount),
+          recipient,
+        })
+      );
+
+      // Generate signature before sending the request
+      const signature = await secp256k1
+        .sign(messageHash, privateKey)
+        .toCompactHex();
+
       const {
         data: { balance },
       } = await server.post(`send`, {
         sender: address,
         amount: parseInt(sendAmount),
         recipient,
+        signature,
+        /**
+         * @warning 
+         */
+        privateKey,
       });
       setBalance(balance);
-    } catch (ex: unknown) {
+    } catch (ex) {
       if (ex instanceof Error) {
-        alert(ex);
+        alert(ex.message);
       }
     }
   }
